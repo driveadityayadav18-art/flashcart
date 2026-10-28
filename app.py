@@ -9,9 +9,6 @@ from decimal import Decimal
 import pandas as pd
 import streamlit as st
 from mysql.connector.errors import Error as MySQLError
-import importlib
-import db
-importlib.reload(db)
 
 from db import (
     run_query,

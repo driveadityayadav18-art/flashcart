@@ -17,7 +17,7 @@ def main():
     print("\n[1/3] Testing MySQL connection...")
     try:
         conn = get_db_connection()
-        server_info = conn.get_server_info()
+        server_info = conn.server_info
         print(f"  [SUCCESS] Connected to MySQL Server version: {server_info}")
         conn.close()
     except MySQLError as e:

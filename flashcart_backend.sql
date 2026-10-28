@@ -299,7 +299,9 @@ INSERT INTO inventory_batches (store_id, product_id, mfg_date, expiry_date, stoc
 (1, 3, CURDATE(),                           DATE_ADD(CURDATE(), INTERVAL 3 DAY), 20),
 (1, 4, DATE_SUB(CURDATE(), INTERVAL 15 DAY), DATE_ADD(CURDATE(), INTERVAL 180 DAY), 50),
 (2, 1, CURDATE(),                           DATE_ADD(CURDATE(), INTERVAL 4 DAY), 30),
-(2, 5, DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_ADD(CURDATE(), INTERVAL 240 DAY), 60);
+(2, 5, DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_ADD(CURDATE(), INTERVAL 240 DAY), 60),
+(3, 1, CURDATE(),                           DATE_ADD(CURDATE(), INTERVAL 5 DAY), 25),
+(3, 3, DATE_SUB(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 20);
 
 -- =============================================================================
 -- SECTION 6: ANALYTICAL & TEMPORAL QUERIES (Viva Showcase)

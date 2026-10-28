@@ -634,14 +634,16 @@ def reset_demo_data() -> dict[str, Any]:
     """
     Executes an atomic reset routine within a single transaction:
     1. Clears `sla_violations`, `order_items`, and `orders`.
-    2. Resets `inventory_batches` quantities to seed values:
-       - Batch 1 (Milk Batch 1) = 15
-       - Batch 2 (Milk Batch 2) = 40
-       - Batch 3 (Eggs) = 25
-       - Batch 4 (Bread) = 20
-       - Batch 5 (Chips) = 50
-       - Batch 6 (Store 2 Milk) = 30
-       - Batch 7 (Store 2 Cola) = 60
+    2. Resets `inventory_batches` with dynamic relative dates (CURDATE) and seed quantities:
+       - Batch 1 (Store 1 Milk) = 15 units (Expires in 2 days - Critical)
+       - Batch 2 (Store 1 Milk) = 40 units (Expires in 6 days - Fresh)
+       - Batch 3 (Store 1 Eggs) = 25 units (Expires in 10 days - Fresh)
+       - Batch 4 (Store 1 Bread) = 20 units (Expires in 3 days - Short)
+       - Batch 5 (Store 1 Chips) = 50 units (Expires in 180 days - Fresh)
+       - Batch 6 (Store 2 Milk) = 30 units (Expires in 4 days - Short)
+       - Batch 7 (Store 2 Cola) = 60 units (Expires in 240 days - Fresh)
+       - Batch 8 (Store 3 Milk) = 25 units (Expires in 5 days - Fresh)
+       - Batch 9 (Store 3 Bread) = 20 units (Expires in 3 days - Short)
     3. Resets all `delivery_riders` duty_status to 'IDLE'.
     4. Resets `customers` wallet_balance to default seed amounts:
        - Aarav Sharma (ID 1) = 100.00
@@ -662,20 +664,28 @@ def reset_demo_data() -> dict[str, Any]:
         cursor.execute("DELETE FROM order_items;")
         cursor.execute("DELETE FROM orders;")
 
-        # 2. Reset inventory quantities
-        batch_resets = [
-            (15, 1),
-            (40, 2),
-            (25, 3),
-            (20, 4),
-            (50, 5),
-            (30, 6),
-            (60, 7),
-        ]
-        cursor.executemany(
-            "UPDATE inventory_batches SET stock_qty = %s WHERE batch_id = %s;",
-            batch_resets,
-        )
+        # 2. Reset and refresh inventory batches with dynamic relative dates (FEFO)
+        cursor.execute("DELETE FROM inventory_batches WHERE batch_id > 9;")
+        batch_upsert_sql = """
+            INSERT INTO inventory_batches (batch_id, store_id, product_id, mfg_date, expiry_date, stock_qty)
+            VALUES
+                (1, 1, 1, DATE_SUB(CURDATE(), INTERVAL 2 DAY), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 15),
+                (2, 1, 1, CURDATE(),                           DATE_ADD(CURDATE(), INTERVAL 6 DAY), 40),
+                (3, 1, 2, DATE_SUB(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 10 DAY), 25),
+                (4, 1, 3, CURDATE(),                           DATE_ADD(CURDATE(), INTERVAL 3 DAY), 20),
+                (5, 1, 4, DATE_SUB(CURDATE(), INTERVAL 15 DAY), DATE_ADD(CURDATE(), INTERVAL 180 DAY), 50),
+                (6, 2, 1, CURDATE(),                           DATE_ADD(CURDATE(), INTERVAL 4 DAY), 30),
+                (7, 2, 5, DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_ADD(CURDATE(), INTERVAL 240 DAY), 60),
+                (8, 3, 1, CURDATE(),                           DATE_ADD(CURDATE(), INTERVAL 5 DAY), 25),
+                (9, 3, 3, DATE_SUB(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 20)
+            ON DUPLICATE KEY UPDATE
+                store_id = VALUES(store_id),
+                product_id = VALUES(product_id),
+                mfg_date = VALUES(mfg_date),
+                expiry_date = VALUES(expiry_date),
+                stock_qty = VALUES(stock_qty);
+        """
+        cursor.execute(batch_upsert_sql)
 
         # 3. Reset rider duty statuses to 'IDLE'
         cursor.execute("UPDATE delivery_riders SET duty_status = 'IDLE';")
