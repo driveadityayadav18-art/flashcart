@@ -222,6 +222,23 @@ DELIMITER ;
 
 ---
 
+## 🔐 Customer Authentication, Registration & Profile Management
+
+FlashCart implements an enterprise-grade customer identity and account lifecycle engine:
+
+1. **Role-Based Login Portal:**
+   - **Customer Sign In:** Authenticate using unique **Email** (or mobile phone) and password with SHA-256 password hashing.
+   - **Quick Viva Demo Logins:** 1-click test credentials for seed accounts (*Aarav Sharma*, *Diya Nair*, *Rohan Verma*).
+   - **Dark Store Manager Login:** Dark Store Hub selector + Manager passkey (\dmin123\) granting access to Hub Dispatch and Control Tower analytics.
+2. **New Customer Self-Registration:**
+   - Onboard new users collecting Name, Email (validated unique), 10-digit Phone (validated unique), Delivery Address, and Password.
+   - Automatically grants an initial **₹100.00 Welcome Bonus** directly into the customer's digital wallet.
+3. **Profile View & Edit:**
+   - Customers can inspect account details, view live wallet balances (updated in real time after SLA refunds), and edit their Name, Phone, Delivery Address, or change their password.
+4. **Soft Account Deletion (3NF Relational Integrity Safeguard):**
+   - Because historical orders reference \customer_id\ with \ON DELETE RESTRICT\, FlashCart uses **Soft Deletion** (\is_active = FALSE\).
+   - This revokes login access and deactivates the profile while strictly preserving historical audit ledgers and SLA violation records.
+
 ## 🚀 Quickstart Setup Guide
 
 ### Prerequisites

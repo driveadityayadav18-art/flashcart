@@ -15,9 +15,13 @@ USE flashcart_db;
 CREATE TABLE customers (
     customer_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
     phone VARCHAR(15) NOT NULL UNIQUE,
     delivery_address TEXT NOT NULL,
-    wallet_balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00
+    wallet_balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    password_hash VARCHAR(255) NOT NULL DEFAULT '',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 1.2 Dark Stores Table (Regional Micro-fulfillment Hubs)
@@ -270,10 +274,10 @@ INSERT INTO dark_stores (hub_name, pincode_zone, operating_status) VALUES
 ('Whitefield Dark Store Hub',   '560066', 'ACTIVE');
 
 -- 5.2 Customers
-INSERT INTO customers (name, phone, delivery_address, wallet_balance) VALUES
-('Aarav Sharma', '9876543210', 'Flat 402, Sunrise Apts, Indiranagar', 50.00),
-('Diya Nair',    '9876543211', 'House 12, 4th Cross, Koramangala',   0.00),
-('Rohan Verma',  '9876543212', 'Villa 8, Palm Meadows, Whitefield',  120.00);
+INSERT INTO customers (name, email, phone, delivery_address, wallet_balance, password_hash, is_active) VALUES
+('Aarav Sharma', 'aarav@flashcart.com', '9876543210', 'Flat 402, Sunrise Apts, Indiranagar', 50.00, SHA2('flashcart123', 256), TRUE),
+('Diya Nair',    'diya@flashcart.com',  '9876543211', 'House 12, 4th Cross, Koramangala',   0.00,  SHA2('flashcart123', 256), TRUE),
+('Rohan Verma',  'rohan@flashcart.com', '9876543212', 'Villa 8, Palm Meadows, Whitefield',  120.00, SHA2('flashcart123', 256), TRUE);
 
 -- 5.3 Products Catalog
 INSERT INTO products (name, category, unit_price, is_perishable) VALUES

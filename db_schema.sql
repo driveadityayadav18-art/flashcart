@@ -1,9 +1,13 @@
 Table customers {
   customer_id int [pk, increment]
   name varchar [not null]
+  email varchar [not null, unique]
   phone varchar [not null, unique]
   delivery_address text [not null]
   wallet_balance decimal [not null, default: 0.0]
+  password_hash varchar [not null]
+  is_active boolean [not null, default: true]
+  created_at timestamp [not null]
 }
 
 Table dark_stores {
